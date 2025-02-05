@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.rali</groupId>
-    <artifactId>oauth2-poc</artifactId>
+    <artifactId>spring-boot-social-login</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>oauth2-poc</name>
-    <description>oauth2-poc</description>
+    <name>spring-boot-social-login</name>
+    <description>spring-boot-social-login</description>
     <url/>
     <licenses>
         <license/>
