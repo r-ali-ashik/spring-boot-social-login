@@ -3,6 +3,8 @@ package com.rali.security.oauth2;
 import com.rali.config.AppProperties;
 import com.rali.dto.LoginSessionDto;
 import com.rali.exception.ApiException;
+import com.rali.security.oauth2.user.OAuth2UserInfo;
+import com.rali.security.oauth2.user.OAuth2UserInfoFactory;
 import com.rali.service.AuthService;
 import com.rali.service.UserService;
 import com.rali.util.CookieUtils;
@@ -84,15 +86,22 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             throw new ApiException("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication", HttpStatus.BAD_REQUEST);
         }
 
+        String provider = null;
+        if (authentication instanceof OAuth2AuthenticationToken authToken) {
+            provider = authToken.getAuthorizedClientRegistrationId();
+        }
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
         String username = null;
         if (authentication.getPrincipal() instanceof OidcUser oidcUser) {
             Map<String, Object> attributes = oidcUser.getAttributes();
-            username = (String) attributes.get("email");
+            OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, attributes);
+            username = oAuth2UserInfo.getUsername();
         } else if (authentication.getPrincipal() instanceof OAuth2User oAuth2User) {
             Map<String, Object> attributes = oAuth2User.getAttributes();
-            username = (String) attributes.get("email");
+            OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, attributes);
+            username = oAuth2UserInfo.getUsername();
         }
+
         LoginSessionDto loginSessionDto = authService.createOrUpdateLoginSession(username);
 
         return UriComponentsBuilder.fromUriString(targetUrl)
